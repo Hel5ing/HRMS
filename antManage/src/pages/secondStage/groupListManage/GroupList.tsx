@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Button, Card, Form, Input, Modal, message } from 'antd';
+import { Table, Button, Card, Form, Input, Modal, message, Select, Row, Col, FormItem } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageLoading from '@/components/PageLoading';
 import { LoginInfo } from '@/models/login';
@@ -18,6 +18,8 @@ interface StateData {
   adminFormVisible: boolean;
   addAdminLoading: boolean;
   deleteAdminLoading: boolean;
+  rsmList?: any[];
+  selectedAuthority: string;
 }
 
 interface CreateFormProps extends FormComponentProps {
@@ -25,13 +27,16 @@ interface CreateFormProps extends FormComponentProps {
   handleAdd: (fieldsValue: { desc: string }) => void;
   onCancel: () => void;
   dataInfo?: any;
+  rsmList?: any[];
+  selectedAuthority: string;
 }
 
 const CreateForm = Form.create<CreateFormProps>()(
   // eslint-disable-next-line
   class extends React.Component {
     render() {
-      const { visible, handleAdd, dataInfo, onCancel, form } = this.props as CreateFormProps;
+      const { visible, handleAdd, dataInfo, rsmList, onCancel, form } = this
+        .props as CreateFormProps;
       const { getFieldDecorator } = form;
 
       const onCreate = () => {
@@ -62,6 +67,29 @@ const CreateForm = Form.create<CreateFormProps>()(
                 initialValue: dataInfo ? dataInfo.channel : '',
                 rules: [{ required: true, message: '请输入渠道名称！' }],
               })(<Input />)}
+            </Form.Item>
+            <Form.Item label="RSM">
+              {getFieldDecorator('rsm', {
+                initialValue: dataInfo ? dataInfo.rsm.name : '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择RSM!',
+                  },
+                ],
+              })(
+                <Select style={{ width: 150 }}>
+                  {rsmList
+                    ? rsmList.map((data: { id: number; name: string; mobile: number }) => {
+                        return (
+                          <Select.Option key={data.id} value={data.id}>
+                            {data.name}
+                          </Select.Option>
+                        );
+                      })
+                    : null}
+                </Select>,
+              )}
             </Form.Item>
           </Form>
         </Modal>
@@ -144,6 +172,11 @@ class GroupList extends React.Component {
       key: 'channel',
     },
     {
+      title: 'RSM',
+      dataIndex: 'rsm.name',
+      key: 'rsm',
+    },
+    {
       title: '创建时间',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -170,15 +203,17 @@ class GroupList extends React.Component {
     addAdminLoading: false,
   };
 
-  private loginData: { passWord: string; loginInfo: LoginInfo } = JSON.parse(localStorage.getItem(
-    'LoginInfo',
-  ) as string);
+  private loginData: { passWord: string; loginInfo: LoginInfo } = JSON.parse(
+    localStorage.getItem('LoginInfo') as string,
+  );
   private token: string = '';
 
   componentDidMount() {
     this.token =
       'Basic ' + btoa(this.loginData.loginInfo.person.mobile + ':' + this.loginData.passWord);
     this.getDataInfoList();
+    this.getRsmList();
+    this.getAuthorityList();
   }
 
   showDetailInfo = (groupId: number) => {
@@ -241,6 +276,44 @@ class GroupList extends React.Component {
       });
   };
 
+  getRsmList() {
+    if (!this.loginData) return;
+
+    return fetch('/api/enum/rsm/list', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({
+          rsmList: json.response,
+        });
+      });
+  }
+
+  getAuthorityList() {
+    if (!this.loginData) return;
+
+    return fetch('/api/enum/authority/list', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({
+          authorityList: json.response,
+        });
+      });
+  }
+
   editBtnHandler = (value: any) => {
     console.log('----clickEdit: ', value);
 
@@ -262,6 +335,82 @@ class GroupList extends React.Component {
       },
     );
   };
+
+  searchGroupList = (authority: number) => {
+    if (!this.loginData) return;
+    return fetch('/api/group/search', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        authority: authority,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        (json.response.list as []).forEach((data: any, index: number) => {
+          data.key = index;
+        });
+        const pagination = { ...this.state.pagination };
+        pagination.total = json.response.total ? json.response.total : 1;
+        this.setState({
+          pagination,
+          dataList: json.response.list,
+        });
+      });
+  };
+
+  handleFormReset = () => {
+    //重置SELECT
+    this.setState({
+      selectedAuthority: '',
+    });
+    this.getDataInfoList();
+  };
+
+  handleAuthorityChange = value => {
+    console.log(value);
+    this.setState({
+      selectedAuthority: value,
+    });
+    this.searchGroupList(value);
+  };
+
+  renderSimpleForm() {
+    return (
+      <Form layout="inline">
+        <Row gutter={{ md: 4, lg: 12, xl: 24 }}>
+          <Col md={4} sm={12}>
+            <Select
+              style={{ width: '100%' }}
+              onChange={this.handleAuthorityChange}
+              value={this.state.selectedAuthority}
+            >
+              {this.state.authorityList
+                ? this.state.authorityList.map((data: { id: number; name: string }) => {
+                    return (
+                      <Select.Option key={data.id} value={data.id}>
+                        {data.name}
+                      </Select.Option>
+                    );
+                  })
+                : null}
+            </Select>
+          </Col>
+          <Col md={4} sm={12}>
+            <span className={styles.submitButtons}>
+              <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
+                重置
+              </Button>
+            </span>
+          </Col>
+        </Row>
+      </Form>
+    );
+  }
 
   handleCancel = () => {
     this.setState({ formVisible: false });
@@ -292,6 +441,7 @@ class GroupList extends React.Component {
         admin_id: this.loginData.loginInfo.id,
         name: values.name,
         channel: values.channel,
+        rsm: values.rsm,
       }),
     })
       .then(response => response.json())
@@ -303,6 +453,7 @@ class GroupList extends React.Component {
   };
 
   editData = (values: any) => {
+    console.log(values);
     if (!this.loginData) return;
     return fetch('/api/group/update', {
       headers: {
@@ -316,6 +467,7 @@ class GroupList extends React.Component {
         group_id: this.state.dataInfo.id,
         channel: values.channel,
         name: values.name,
+        rsm: values.rsm,
       }),
     })
       .then(response => response.json())
@@ -431,6 +583,7 @@ class GroupList extends React.Component {
       <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
+            <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={() => this.handleFormVisible(true)}>
                 添加集团
@@ -450,6 +603,7 @@ class GroupList extends React.Component {
             onCancel={this.handleCancel}
             handleAdd={this.handleAdd}
             dataInfo={this.state.dataInfo}
+            rsmList={this.state.rsmList}
           />
 
           <GroupDetailInfo

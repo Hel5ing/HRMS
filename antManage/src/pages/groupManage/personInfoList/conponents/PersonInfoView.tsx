@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Card, Divider, Descriptions, Icon, Spin } from 'antd';
+import { Modal, Card, Divider, Descriptions, Icon, Spin, Rate } from 'antd';
 import styles from './Center.less';
 
 interface PersonInfoProps {
@@ -65,14 +65,26 @@ class PersonInfoView extends React.Component<PersonInfoProps> {
                 <Icon type="contacts" />
                 {personInfo.status ? personInfo.status.name : ''}
               </p>
-              {personInfo.star ? (
-                <p>
-                  <Icon type="star" theme="filled" /> personInfo.star
-                </p>
-              ) : (
-                ''
-              )}
+              <p>
+                <Icon type="rise" />
+                {personInfo.level
+                  ? personInfo.level == 1
+                    ? '初级'
+                    : personInfo.level == 2
+                    ? '中级'
+                    : '高级'
+                  : '初级'}
+              </p>
             </div>
+            {personInfo.star ? (
+              <div>
+                <Rate defaultValue={personInfo.star} disabled={true} />
+              </div>
+            ) : (
+              <div>
+                <Rate defaultValue={0} disabled={true} />
+              </div>
+            )}
             <Divider dashed />
             <Descriptions
               title="站点信息"

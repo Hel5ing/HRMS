@@ -160,6 +160,12 @@ export default {
                   component: './secondStage/groupListManage/GroupList',
                 },
                 {
+                  path: '/secondStage/siteListManage',
+                  name: 'siteListManage',
+                  icon: 'crown',
+                  component: './secondStage/siteListManage/siteListManage',
+                },
+                {
                   path: '/secondStage/roleManage',
                   name: 'roleManage',
                   icon: 'crown',
@@ -207,12 +213,6 @@ export default {
                   component: './productManage/productLine/ProductLine',
                 },
               ],
-            },
-            {
-              path: '/siteListManage',
-              name: 'siteListManage',
-              icon: 'smile',
-              component: './siteListManage/siteListManage',
             },
             {
               path: '/information',
@@ -334,6 +334,34 @@ export default {
               name: 'certificateManage',
               icon: 'smile',
               component: './certificateManage',
+            },
+            {
+              path: '/auditManage',
+              name: 'auditManage',
+              icon: 'smile',
+              routes: [
+                {
+                  path: '/auditManage',
+                  redirect: '/auditManage/onboardAuditList',
+                },
+                {
+                  path: '/auditManage/onboardAuditList',
+                  name: 'onboardAuditList',
+                  component: './auditManage/onboardAuditList',
+                },
+                {
+                  path: '/auditManage/offboardAuditList',
+                  name: 'offboardAuditList',
+                },
+                {
+                  path: '/auditManage/positionChangeAuditList',
+                  name: 'positionChangeAuditList',
+                },
+                {
+                  path: '/auditManage/reCertificateAuditList',
+                  name: 'reCertificateAuditList',
+                },
+              ],
             },
             {
               path: '/setting',

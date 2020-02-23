@@ -206,7 +206,9 @@ const CreatePersonForm: React.FC<CreateFormProps> = props => {
             </FormItem>
 
             <FormItem style={{ marginBottom: 0 }} label="人员星级">
-              {getFieldDecorator('star', { initialValue: editData ? editData.star : '' })(
+              {getFieldDecorator('star', {
+                initialValue: editData && editData.star ? editData.star : '',
+              })(
                 <Select style={{ width: 150 }}>
                   <Option key={1} value={1}>
                     1

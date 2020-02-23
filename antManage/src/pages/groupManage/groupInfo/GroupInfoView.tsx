@@ -379,6 +379,10 @@ class GroupInfoView extends React.Component<GroupInfoProps> {
               {this.state.groupInfo.created_at}
             </Descriptions.Item>
             <Descriptions.Item label="集团授权">{this.getAuthorityView()}</Descriptions.Item>
+            <Descriptions.Item label="集团RSM">
+              姓名:{this.state.groupInfo.group.rsm.name} 联系方式:
+              {this.state.groupInfo.group.rsm.mobile}
+            </Descriptions.Item>
           </Descriptions>
           <br />
           <br />

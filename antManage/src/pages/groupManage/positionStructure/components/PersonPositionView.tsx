@@ -52,7 +52,7 @@ class PersonPositionView extends React.Component<PersonInfoProps> {
             </div>
             <Divider dashed />
             <Descriptions bordered column={2} layout="vertical" style={{ marginBottom: 32 }}>
-              <Descriptions.Item label="员工编号">{personInfo.employee_id}</Descriptions.Item>
+              <Descriptions.Item label="员工工号">{personInfo.employee_id}</Descriptions.Item>
               <Descriptions.Item label="所属站点">
                 {personInfo.site ? personInfo.site.name : ''}
               </Descriptions.Item>

@@ -6,11 +6,18 @@ import { LoginInfo } from '@/models/login';
 import { FormComponentProps } from 'antd/lib/form';
 import styles from '../style.less';
 import CreateSiteForm from './components/CreateSiteForm';
-import { GeographicData } from '../geographic/Geographic';
 import SiteInfoView from './components/SiteInfoView';
-import { SiteInfo } from '../groupManage/siteInfoList/SiteInfoList';
-import { PersonInfo } from '../groupManage/personInfoList/PersonInfoList';
+import { PersonInfo } from '@/pages/groupManage/personInfoList/PersonInfoList';
+import { SiteInfo } from '@/pages/groupManage/siteInfoList/SiteInfoList';
+import { GeographicData } from '@/pages/geographic/Geographic';
 import ExportJsonExcel from 'js-export-excel';
+interface AuthorityInfo {
+  id: number;
+  site_id: number;
+  authority_id: number;
+  enum: object;
+}
+
 interface AdminInfo {
   id: number;
   site_id: number;
@@ -79,13 +86,14 @@ class SiteListManage extends React.Component<FormComponentProps> {
       },
     },
     {
-      title: '联系方式',
-      dataIndex: 'admin',
-      key: 'adminMobile',
-      render: (admins: AdminInfo[]) => {
+      title: '站点授权',
+      dataIndex: 'authority',
+      key: 'authority',
+      render: (authorities: AuthorityInfo[]) => {
+        console.log(authorities);
         let str: string = '';
-        admins.forEach((data: AdminInfo) => {
-          str += data.person.mobile + ' ';
+        authorities.forEach((data: AuthorityInfo) => {
+          str += data.enum.name + ' ';
         });
         return <div>{str}</div>;
       },
@@ -106,9 +114,9 @@ class SiteListManage extends React.Component<FormComponentProps> {
       key: 'district',
     },
     {
-      title: '地址',
-      dataIndex: 'address',
-      key: 'address',
+      title: '站点代码',
+      dataIndex: 'code',
+      key: 'code',
     },
     {
       title: '建站时间',
@@ -361,7 +369,7 @@ class SiteListManage extends React.Component<FormComponentProps> {
               })(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="1">根据站点名称模糊查询</Option>
-                  <Option value="2">根据站点编号模糊查询</Option>
+                  <Option value="2">根据站点代码模糊查询</Option>
                   <Option value="3">根据根据站点类型筛选</Option>
                   <Option value="4">根据省筛选</Option>
                   <Option value="5">根据市筛选</Option>
@@ -548,6 +556,67 @@ class SiteListManage extends React.Component<FormComponentProps> {
         this.getSiteInfoList();
       },
     );
+  };
+
+  downloadFileToExcel = () => {
+    let siteList = this.state.siteInfoList; //从props中获取数据源
+    let option = {}; //option代表的就是excel文件
+    let dataTable = []; //excel文件中的数据内容
+    if (siteList && siteList.length > 0) {
+      for (let i in siteList) {
+        //循环获取excel中每一行的数据
+        //let _planDay = formatTime(siteList[i].planDay, true);  //格式化日期（自定义方法）
+        let obj = {
+          站点编号: siteList[i].id,
+          站点经理: siteList[i].admin.length > 0 ? siteList[i].admin[0].person.name : '',
+          联系方式: siteList[i].admin.length > 0 ? siteList[i].admin[0].person.mobile : '',
+          省份: siteList[i].province,
+          城市: siteList[i].city,
+          区: siteList[i].district,
+          地址: siteList[i].address,
+          建站时间: siteList[i].created_at,
+          站点类型: siteList[i].type.name,
+          站点星级: siteList[i].star,
+          站点状态: siteList[i].status.name,
+        };
+        dataTable.push(obj); //设置excel中每列所获取的数据源
+      }
+    }
+    option.fileName = '站点列表'; //excel文件名称
+    option.datas = [
+      {
+        sheetData: dataTable, //excel文件中的数据源
+        sheetName: 'sheet1', //excel文件中sheet页名称
+        sheetFilter: [
+          '站点编号',
+          '站点经理',
+          '联系方式',
+          '省份',
+          '城市',
+          '区',
+          '地址',
+          '建站时间',
+          '站点类型',
+          '站点星级',
+          '站点状态',
+        ], //excel文件中需显示的列数据
+        sheetHeader: [
+          '站点编号',
+          '站点经理',
+          '联系方式',
+          '省份',
+          '城市',
+          '区',
+          '地址',
+          '建站时间',
+          '站点类型',
+          '站点星级',
+          '站点状态',
+        ], //excel文件中每列的表头名称
+      },
+    ];
+    let toExcel = new ExportJsonExcel(option); //生成excel文件
+    toExcel.saveExcel(); //下载excel文件
   };
 
   render() {

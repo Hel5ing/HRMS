@@ -27,7 +27,7 @@ class Settings extends Component<SettingsProps, SettingsState> {
   constructor(props: SettingsProps) {
     super(props);
     const menuMap = {
-      holiday: '假期设置',
+      holiday: '年审有效期',
     };
     this.state = {
       mode: 'inline',

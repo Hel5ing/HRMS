@@ -1,8 +1,8 @@
-import { Form, Input, Modal, Select, Row, Col } from 'antd';
+import { Form, Input, Modal, Select } from 'antd';
 import { FormComponentProps } from 'antd/es/form';
 import React from 'react';
-import { SiteInfo } from '../SiteInfoList';
 import GeographicView from './GeographicView';
+import { SiteInfo } from '@/pages/groupManage/siteInfoList/SiteInfoList';
 
 const FormItem = Form.Item;
 const { Option } = Select;

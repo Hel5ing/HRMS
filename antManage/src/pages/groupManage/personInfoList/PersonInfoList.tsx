@@ -35,6 +35,13 @@ export interface PersonInfo {
   working: string;
 }
 
+interface CourseInfo {
+  id: number;
+  person_id: number;
+  course_id: number;
+  course: object;
+}
+
 interface PersonState {
   editPerson?: PersonInfo;
   pagination: { current: number; total: number };
@@ -109,9 +116,9 @@ const CertificateForm = Form.create({ name: 'form_in_modal' })(
 class PersonInfoList extends React.Component<FormComponentProps> {
   columns = [
     {
-      title: '员工编号',
-      dataIndex: 'id',
-      key: 'id',
+      title: '员工工号',
+      dataIndex: 'employee_id',
+      key: 'employee_id',
     },
     {
       title: '姓名',
@@ -158,9 +165,19 @@ class PersonInfoList extends React.Component<FormComponentProps> {
       key: 'education',
     },
     {
-      title: '专业',
-      dataIndex: 'major',
-      key: 'major',
+      title: '授权课程',
+      dataIndex: 'course_authority',
+      key: 'course',
+      render: (courses: CourseInfo[]) => {
+        let str: string = '';
+        if (courses && courses.length > 0) {
+          courses.forEach((data: CourseInfo) => {
+            str += data.course.title + ' ';
+          });
+        }
+
+        return <div>{str}</div>;
+      },
     },
     {
       title: '入职日期',
@@ -454,7 +471,7 @@ class PersonInfoList extends React.Component<FormComponentProps> {
                 <Select placeholder="请选择" style={{ width: '100%' }} onChange={this.handleChange}>
                   <Option value="1">根据姓名模糊查询</Option>
                   <Option value="2">根据手机号模糊查询</Option>
-                  <Option value="3">根据员工编号模糊查询</Option>
+                  <Option value="3">根据员工工号模糊查询</Option>
                   <Option value="4">根据所属站点名称模糊查询</Option>
                   <Option value="5">根据员工状态筛选</Option>
                   <Option value="6">根据员工级别筛选[初级.中级.高级]</Option>

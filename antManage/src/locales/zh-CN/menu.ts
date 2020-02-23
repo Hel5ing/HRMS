@@ -13,6 +13,7 @@ export default {
 
   'menu.secondStage': '系统管理',
   'menu.secondStage.groupListManage': '集团信息管理',
+  'menu.secondStage.siteListManage': '站点信息管理',
   'menu.secondStage.roleManage': '角色信息管理',
   'menu.secondStage.userInfoManage': '用户信息管理',
   'menu.secondStage.positionManage': '岗位管理',
@@ -47,6 +48,12 @@ export default {
   'menu.productManage.productList': '产品信息',
   'menu.productManage.productType': '产品类型',
   'menu.productManage.productLine': '产品线',
+
+  'menu.auditManage': '审核管理',
+  'menu.auditManage.onboardAuditList': '员工入职审核',
+  'menu.auditManage.offboardAuditList': '员工离职审核',
+  'menu.auditManage.positionChangeAuditList': '岗位变更审核',
+  'menu.auditManage.reCertificateAuditList': '补发证书审核',
 
   'menu.login': '登录',
   'menu.register': '注册',

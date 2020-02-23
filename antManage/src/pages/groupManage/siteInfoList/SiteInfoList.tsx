@@ -31,6 +31,13 @@ export interface SiteInfo {
   code: string;
 }
 
+interface AuthorityInfo {
+  id: number;
+  site_id: number;
+  authority_id: number;
+  enum: object;
+}
+
 interface AdminInfo {
   id: number;
   site_id: number;
@@ -97,13 +104,14 @@ class SiteInfoList extends React.Component<FormComponentProps> {
       },
     },
     {
-      title: '联系方式',
-      dataIndex: 'admin',
-      key: 'adminMobile',
-      render: (admins: AdminInfo[]) => {
+      title: '站点授权',
+      dataIndex: 'authority',
+      key: 'authority',
+      render: (authorities: AuthorityInfo[]) => {
+        console.log(authorities);
         let str: string = '';
-        admins.forEach((data: AdminInfo) => {
-          str += data.person.mobile + ' ';
+        authorities.forEach((data: AuthorityInfo) => {
+          str += data.enum.name + ' ';
         });
         return <div>{str}</div>;
       },
@@ -124,9 +132,9 @@ class SiteInfoList extends React.Component<FormComponentProps> {
       key: 'district',
     },
     {
-      title: '地址',
-      dataIndex: 'address',
-      key: 'address',
+      title: '站点代码',
+      dataIndex: 'code',
+      key: 'code',
     },
     {
       title: '建站时间',
@@ -168,9 +176,9 @@ class SiteInfoList extends React.Component<FormComponentProps> {
     siteInfoList: [],
   };
 
-  private loginData: { passWord: string; loginInfo: LoginInfo } = JSON.parse(localStorage.getItem(
-    'LoginInfo',
-  ) as string);
+  private loginData: { passWord: string; loginInfo: LoginInfo } = JSON.parse(
+    localStorage.getItem('LoginInfo') as string,
+  );
   private token: string = '';
 
   componentDidMount() {
@@ -343,7 +351,7 @@ class SiteInfoList extends React.Component<FormComponentProps> {
               })(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="1">根据站点名称模糊查询</Option>
-                  <Option value="2">根据站点编号模糊查询</Option>
+                  <Option value="2">根据站点代码模糊查询</Option>
                   <Option value="3">根据根据站点类型筛选</Option>
                   <Option value="4">根据省筛选</Option>
                   <Option value="5">根据市筛选</Option>
