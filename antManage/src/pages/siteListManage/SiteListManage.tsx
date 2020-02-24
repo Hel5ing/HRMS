@@ -550,6 +550,67 @@ class SiteListManage extends React.Component<FormComponentProps> {
     );
   };
 
+  downloadFileToExcel = () => {
+    let siteList = this.state.siteInfoList; //从props中获取数据源
+    let option = {}; //option代表的就是excel文件
+    let dataTable = []; //excel文件中的数据内容
+    if (siteList && siteList.length > 0) {
+      for (let i in siteList) {
+        //循环获取excel中每一行的数据
+        //let _planDay = formatTime(siteList[i].planDay, true);  //格式化日期（自定义方法）
+        let obj = {
+          站点编号: siteList[i].id,
+          站点经理: siteList[i].admin.length > 0 ? siteList[i].admin[0].person.name : '',
+          联系方式: siteList[i].admin.length > 0 ? siteList[i].admin[0].person.mobile : '',
+          省份: siteList[i].province,
+          城市: siteList[i].city,
+          区: siteList[i].district,
+          地址: siteList[i].address,
+          建站时间: siteList[i].created_at,
+          站点类型: siteList[i].type.name,
+          站点星级: siteList[i].star,
+          站点状态: siteList[i].status.name,
+        };
+        dataTable.push(obj); //设置excel中每列所获取的数据源
+      }
+    }
+    option.fileName = '站点列表'; //excel文件名称
+    option.datas = [
+      {
+        sheetData: dataTable, //excel文件中的数据源
+        sheetName: 'sheet1', //excel文件中sheet页名称
+        sheetFilter: [
+          '站点编号',
+          '站点经理',
+          '联系方式',
+          '省份',
+          '城市',
+          '区',
+          '地址',
+          '建站时间',
+          '站点类型',
+          '站点星级',
+          '站点状态',
+        ], //excel文件中需显示的列数据
+        sheetHeader: [
+          '站点编号',
+          '站点经理',
+          '联系方式',
+          '省份',
+          '城市',
+          '区',
+          '地址',
+          '建站时间',
+          '站点类型',
+          '站点星级',
+          '站点状态',
+        ], //excel文件中每列的表头名称
+      },
+    ];
+    let toExcel = new ExportJsonExcel(option); //生成excel文件
+    toExcel.saveExcel(); //下载excel文件
+  };
+
   render() {
     if (!this.state.siteInfoList || !this.state.groupTabList?.length) {
       return <PageLoading />;

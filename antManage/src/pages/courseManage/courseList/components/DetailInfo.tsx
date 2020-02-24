@@ -31,7 +31,9 @@ class DetailInfo extends React.Component<DetailInfoProps> {
             </div>
 
             <Descriptions column={2}>
-              <Descriptions.Item label="课程类别">{detailInfo.category.name}</Descriptions.Item>
+              <Descriptions.Item label="课程类别">
+                {detailInfo.category ? detailInfo.category.name : ''}
+              </Descriptions.Item>
               <Descriptions.Item label="课程状态">{detailInfo.status.name}</Descriptions.Item>
               <Descriptions.Item label="课程内容">{detailInfo.content}</Descriptions.Item>
             </Descriptions>

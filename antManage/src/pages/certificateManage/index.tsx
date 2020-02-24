@@ -70,6 +70,11 @@ class CertificateList extends React.Component<FormComponentProps> {
         status === 1 ? <Tag color="blue">有效</Tag> : <Tag color="red">无效</Tag>,
     },
     {
+      title: '证书有效期',
+      dataIndex: 'expiry_date',
+      key: 'expiry_date',
+    },
+    {
       title: '操作',
       key: 'action',
       render: (text: any, record: any) => (

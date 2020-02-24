@@ -357,10 +357,12 @@ export default {
                 {
                   path: '/auditManage/positionChangeAuditList',
                   name: 'positionChangeAuditList',
+                  component: './auditManage/positionChangeAuditList',
                 },
                 {
                   path: '/auditManage/reCertificateAuditList',
                   name: 'reCertificateAuditList',
+                  component: './auditManage/reCertificateAuditList',
                 },
               ],
             },

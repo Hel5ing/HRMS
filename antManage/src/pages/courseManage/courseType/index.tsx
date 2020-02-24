@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Button, Card, Form, Input, Modal } from 'antd';
+import { Table, Button, Card, Form, Input, Modal, Divider, message } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageLoading from '@/components/PageLoading';
 import { LoginInfo } from '@/models/login';
@@ -70,6 +70,21 @@ class CourseTypeView extends React.Component {
       dataIndex: 'name',
       key: 'name',
     },
+    {
+      title: '操作',
+      key: 'action',
+      render: (text: any, record: any) => (
+        <div>
+          <Button type="primary" onClick={() => this.editBtnHandler(record)}>
+            修改
+          </Button>
+          <Divider type="vertical" />
+          <Button type="danger" onClick={() => this.deleteBtnHandler(record)}>
+            删除
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   state: StateData = {
@@ -113,7 +128,33 @@ class CourseTypeView extends React.Component {
       });
   };
 
+  deleteBtnHandler = (value: any) => {
+    return fetch('/api/course/category/delete', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        admin_id: this.loginData.loginInfo.id,
+        category_id: value.id,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({ formVisible: false });
+        if (json.success) {
+          this.getDataInfoList();
+        } else {
+          message.error('操作失败,请稍后再试');
+        }
+      });
+  };
+
   editBtnHandler = (value: any) => {
+    console.log('----clickEdit: ', value);
+
     this.setState({
       formVisible: true,
       dataInfo: value,
@@ -141,7 +182,7 @@ class CourseTypeView extends React.Component {
     console.log('handleAdd values: ', values);
 
     if (this.state.dataInfo) {
-      // this.editData(values);
+      this.editData(values);
     } else {
       this.createData(values);
     }
@@ -182,8 +223,7 @@ class CourseTypeView extends React.Component {
       method: 'POST',
       body: JSON.stringify({
         admin_id: this.loginData.loginInfo.id,
-        group_id: this.state.dataInfo.id,
-        channel: values.channel,
+        category_id: this.state.dataInfo.id,
         name: values.name,
       }),
     })

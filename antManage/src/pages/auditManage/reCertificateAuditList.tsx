@@ -59,7 +59,7 @@ const RejectForm = Form.create<RejectFormProps>()(
   },
 );
 
-class OffBoardAuditList extends React.Component<FormComponentProps> {
+class ReCertificateAuditList extends React.Component<FormComponentProps> {
   columns = [
     {
       title: '渠道',
@@ -87,32 +87,17 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
       key: 'name',
     },
     {
-      title: '学历',
-      dataIndex: 'person.education',
-      key: 'education',
+      title: '申请原因',
+      dataIndex: 'reason',
+      key: 'reason',
     },
     {
-      title: '提交时间',
-      dataIndex: 'created_at',
-      key: 'created_at',
+      title: '证书有效期',
+      dataIndex: 'certificate.expiry_date',
+      key: 'expiry_date',
     },
     {
-      title: '审核时间',
-      dataIndex: 'audited_at',
-      key: 'audited_at',
-    },
-    {
-      title: '申请人',
-      dataIndex: 'applied_by.name',
-      key: 'applied_by',
-    },
-    {
-      title: '审批人',
-      dataIndex: 'audited_by.name',
-      key: 'audited_by',
-    },
-    {
-      title: '申请状态',
+      title: '审核结果',
       dataIndex: 'status',
       key: 'status',
       render: (data: any) => (
@@ -165,7 +150,7 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
 
   getDataInfoList = () => {
     if (!this.loginData) return;
-    return fetch('/api/audit/list/offboard', {
+    return fetch('/api/audit/list/recertificate', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -202,7 +187,7 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
   };
 
   approvalBtnHandler = (value: any) => {
-    return fetch('/api/audit/approval/offboard', {
+    return fetch('/api/audit/approval/recertificate', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -217,7 +202,6 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
       .then(response => response.json())
       .then(json => {
         this.setState({ formVisible: false });
-
         if (json.success) {
           this.getDataInfoList();
         } else {
@@ -253,7 +237,7 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
 
   handleReject = (value: any) => {
     console.log(this.state.dataInfo);
-    return fetch('/api/audit/reject/offboard', {
+    return fetch('/api/audit/reject/recertificate', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -269,7 +253,6 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
       .then(response => response.json())
       .then(json => {
         this.setState({ formVisible: false });
-
         if (json.success) {
           this.getDataInfoList();
         } else {
@@ -334,4 +317,4 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
   }
 }
 
-export default OffBoardAuditList;
+export default ReCertificateAuditList;

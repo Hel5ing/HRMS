@@ -59,7 +59,7 @@ const RejectForm = Form.create<RejectFormProps>()(
   },
 );
 
-class OffBoardAuditList extends React.Component<FormComponentProps> {
+class PositionChangeAuditList extends React.Component<FormComponentProps> {
   columns = [
     {
       title: '渠道',
@@ -87,9 +87,12 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
       key: 'name',
     },
     {
-      title: '学历',
-      dataIndex: 'person.education',
-      key: 'education',
+      title: '操作类型',
+      dataIndex: 'operation',
+      key: 'operation',
+      render: (data: any) => (
+        <Tag color={data == 1 ? 'green' : 'red'}>{data == 1 ? '添加' : '删除'}</Tag>
+      ),
     },
     {
       title: '提交时间',
@@ -165,7 +168,7 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
 
   getDataInfoList = () => {
     if (!this.loginData) return;
-    return fetch('/api/audit/list/offboard', {
+    return fetch('/api/audit/list/positionchange', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -202,7 +205,7 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
   };
 
   approvalBtnHandler = (value: any) => {
-    return fetch('/api/audit/approval/offboard', {
+    return fetch('/api/audit/approval/positionchange', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -217,7 +220,6 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
       .then(response => response.json())
       .then(json => {
         this.setState({ formVisible: false });
-
         if (json.success) {
           this.getDataInfoList();
         } else {
@@ -253,7 +255,7 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
 
   handleReject = (value: any) => {
     console.log(this.state.dataInfo);
-    return fetch('/api/audit/reject/offboard', {
+    return fetch('/api/audit/reject/positionchange', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -269,7 +271,6 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
       .then(response => response.json())
       .then(json => {
         this.setState({ formVisible: false });
-
         if (json.success) {
           this.getDataInfoList();
         } else {
@@ -334,4 +335,4 @@ class OffBoardAuditList extends React.Component<FormComponentProps> {
   }
 }
 
-export default OffBoardAuditList;
+export default PositionChangeAuditList;

@@ -19,6 +19,7 @@ import { LoginInfo } from '@/models/login';
 import { FormComponentProps } from 'antd/lib/form';
 import styles from '../style.less';
 import DetailInfo from './components/DetailInfo';
+import ExportJsonExcel from 'js-export-excel';
 
 interface StateData {
   formVisible: boolean;
@@ -157,7 +158,7 @@ class RewardList extends React.Component<FormComponentProps> {
             this.showDetailInfo(record.id);
           }}
         >
-          {data.name}
+          {data ? data.name : ''}
         </div>
       ),
     },
@@ -168,7 +169,12 @@ class RewardList extends React.Component<FormComponentProps> {
       render: (data: any) => <div>{data.name}</div>,
     },
     {
-      title: '发布者',
+      title: '员工工号',
+      dataIndex: 'target.employee_id',
+      key: 'employee_id',
+    },
+    {
+      title: '奖惩发起人',
       dataIndex: 'published_by',
       key: 'published_by',
       render: (data: any) => <div>{data.name}</div>,
@@ -567,6 +573,38 @@ class RewardList extends React.Component<FormComponentProps> {
       });
   };
 
+  downloadFileToExcel = () => {
+    let rapList = this.state.dataList; //从props中获取数据源
+    let option = {}; //option代表的就是excel文件
+    let dataTable = []; //excel文件中的数据内容
+    if (rapList && rapList.length > 0) {
+      for (let i in rapList) {
+        //循环获取excel中每一行的数据
+        //let _planDay = formatTime(siteList[i].planDay, true);  //格式化日期（自定义方法）
+        let obj = {
+          奖惩分类: rapList[i].category.name,
+          被奖惩人: rapList[i].target.name,
+          员工编号: rapList[i].target.employee_id,
+          奖惩发起人: rapList[i].published_by.name,
+          备注: rapList[i].remark,
+          创建时间: rapList[i].created_at,
+        };
+        dataTable.push(obj); //设置excel中每列所获取的数据源
+      }
+    }
+    option.fileName = '奖惩列表'; //excel文件名称
+    option.datas = [
+      {
+        sheetData: dataTable, //excel文件中的数据源
+        sheetName: 'sheet1', //excel文件中sheet页名称
+        sheetFilter: ['奖惩分类', '被奖惩人', '员工编号', '奖惩发起人', '备注', '创建时间'], //excel文件中需显示的列数据
+        sheetHeader: ['奖惩分类', '被奖惩人', '员工编号', '奖惩发起人', '备注', '创建时间'], //excel文件中每列的表头名称
+      },
+    ];
+    let toExcel = new ExportJsonExcel(option); //生成excel文件
+    toExcel.saveExcel(); //下载excel文件
+  };
+
   render() {
     if (!this.state.dataList.length) {
       return <PageLoading />;
@@ -580,6 +618,14 @@ class RewardList extends React.Component<FormComponentProps> {
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={() => this.handleFormVisible(true)}>
                 创建
+              </Button>
+              <Button
+                type="primary"
+                icon="download"
+                onClick={this.downloadFileToExcel}
+                style={{ marginBottom: 10, marginTop: 10, marginLeft: 10 }}
+              >
+                下载
               </Button>
             </div>
             <Table

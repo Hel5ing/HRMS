@@ -216,6 +216,8 @@ class OnBoardAuditList extends React.Component<FormComponentProps> {
     })
       .then(response => response.json())
       .then(json => {
+        this.setState({ formVisible: false });
+
         if (json.success) {
           this.getDataInfoList();
         } else {
@@ -266,13 +268,14 @@ class OnBoardAuditList extends React.Component<FormComponentProps> {
     })
       .then(response => response.json())
       .then(json => {
+        this.setState({ formVisible: false });
+
         if (json.success) {
           this.getDataInfoList();
         } else {
           message.error('操作失败,请稍后再试');
         }
       });
-    this.setState({ formVisible: false });
   };
 
   handleFormVisible = (flag?: boolean) => {

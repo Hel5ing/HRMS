@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Button, Modal, Form, Input, Card, Select } from 'antd';
+import { Table, Button, Modal, Form, Input, Card, Select, Divider, message } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageLoading from '@/components/PageLoading';
 import { LoginInfo } from '@/models/login';
@@ -107,6 +107,10 @@ class RewardType extends React.Component<FormComponentProps> {
           <Button type="primary" onClick={() => this.editBtnHandler(record)}>
             修改
           </Button>
+          <Divider type="vertical" />
+          <Button type="danger" onClick={() => this.deleteBtnHandler(record)}>
+            删除
+          </Button>
         </div>
       ),
     },
@@ -179,6 +183,30 @@ class RewardType extends React.Component<FormComponentProps> {
       });
   };
 
+  deleteBtnHandler = (value: any) => {
+    return fetch('/api/rap/category/delete', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        admin_id: this.loginData.loginInfo.id,
+        category_id: value.id,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({ formVisible: false });
+        if (json.success) {
+          this.getDataInfoList();
+        } else {
+          message.error('操作失败,请稍后再试');
+        }
+      });
+  };
+
   editBtnHandler = (value: any) => {
     console.log('----clickEdit: ', value);
 
@@ -242,7 +270,7 @@ class RewardType extends React.Component<FormComponentProps> {
 
   editData = (values: any) => {
     if (!this.loginData) return;
-    return fetch('/api/rap/category/update', {
+    return fetch('/api/course/category/update', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',

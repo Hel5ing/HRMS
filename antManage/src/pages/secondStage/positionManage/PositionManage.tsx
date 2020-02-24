@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Button, Card, Form, Checkbox, Input, Modal } from 'antd';
+import { Table, Button, Card, Form, Checkbox, Input, Modal, Divider, message } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageLoading from '@/components/PageLoading';
 import { LoginInfo } from '@/models/login';
@@ -74,9 +74,15 @@ class PositionManage extends React.Component {
       title: '操作',
       key: 'action',
       render: (text: any, record: any) => (
-        <Button type="primary" onClick={() => this.editBtnHandler(record)}>
-          修改岗位
-        </Button>
+        <div>
+          <Button type="primary" onClick={() => this.editBtnHandler(record)}>
+            修改
+          </Button>
+          <Divider type="vertical" />
+          <Button type="danger" onClick={() => this.deleteBtnHandler(record)}>
+            删除
+          </Button>
+        </div>
       ),
     },
   ];
@@ -87,9 +93,9 @@ class PositionManage extends React.Component {
     dataList: [],
   };
 
-  private loginData: { passWord: string; loginInfo: LoginInfo } = JSON.parse(localStorage.getItem(
-    'LoginInfo',
-  ) as string);
+  private loginData: { passWord: string; loginInfo: LoginInfo } = JSON.parse(
+    localStorage.getItem('LoginInfo') as string,
+  );
   private token: string = '';
 
   componentDidMount() {
@@ -129,6 +135,30 @@ class PositionManage extends React.Component {
       formVisible: true,
       dataInfo: value,
     });
+  };
+
+  deleteBtnHandler = (value: any) => {
+    return fetch('/api/position/delete', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        admin_id: this.loginData.loginInfo.id,
+        position_id: value.id,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({ formVisible: false });
+        if (json.success) {
+          this.getDataInfoList();
+        } else {
+          message.error('操作失败,请稍后再试');
+        }
+      });
   };
 
   handleTableChange = (pagination: any) => {
@@ -216,7 +246,7 @@ class PositionManage extends React.Component {
     if (!this.state.dataList.length) {
       return <PageLoading />;
     }
-console.log("----state: ", this.state.dataList);
+    console.log('----state: ', this.state.dataList);
     return (
       <PageHeaderWrapper>
         <Card bordered={false}>

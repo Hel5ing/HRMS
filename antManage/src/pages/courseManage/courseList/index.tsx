@@ -70,7 +70,7 @@ const CreateForm = Form.create<CreateFormProps>()(
         },
         callback: (message?: string) => void,
       ) => {
-        if(dataInfo)return;
+        if (dataInfo) return;
         const { product } = value;
         if (!product || product.length <= 0) {
           callback('请选择课程产品！!');
@@ -108,14 +108,15 @@ const CreateForm = Form.create<CreateFormProps>()(
                 rules: [
                   { required: dataInfo ? false : true, message: '请选择课程产品！' },
                   {
-                    validator: validatorForm
-                  }],
+                    validator: validatorForm,
+                  },
+                ],
               })(<ProductSelectView selectValue={selectValue} onChange={onChange} />)}
             </Form.Item>
 
             <Form.Item label="课程类别">
               {getFieldDecorator('category', {
-                initialValue: dataInfo ? dataInfo.category.id : '',
+                initialValue: dataInfo && dataInfo.category ? dataInfo.category.id : '',
                 rules: [{ required: true, message: '请选择课程类别！' }],
               })(
                 <TreeSelect
@@ -157,9 +158,8 @@ class CourseList extends React.Component<FormComponentProps> {
     },
     {
       title: '课程类别',
-      dataIndex: 'category',
+      dataIndex: 'category.name',
       key: 'category',
-      render: (data: any) => <div>{data.name}</div>,
     },
     {
       title: '课程内容',
@@ -346,7 +346,7 @@ class CourseList extends React.Component<FormComponentProps> {
         productLine: { label: '', key: '' },
         productType: { label: '', key: '' },
         product: [],
-      }
+      },
     });
   };
 
@@ -460,7 +460,7 @@ class CourseList extends React.Component<FormComponentProps> {
         productLine: { label: '', key: '' },
         productType: { label: '', key: '' },
         product: [],
-      }
+      },
     });
   };
 
