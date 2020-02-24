@@ -352,6 +352,7 @@ export default {
                 {
                   path: '/auditManage/offboardAuditList',
                   name: 'offboardAuditList',
+                  component: './auditManage/offboardAuditList',
                 },
                 {
                   path: '/auditManage/positionChangeAuditList',

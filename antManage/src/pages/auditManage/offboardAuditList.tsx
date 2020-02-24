@@ -59,7 +59,7 @@ const RejectForm = Form.create<RejectFormProps>()(
   },
 );
 
-class OnBoardAuditList extends React.Component<FormComponentProps> {
+class OffBoardAuditList extends React.Component<FormComponentProps> {
   columns = [
     {
       title: '渠道',
@@ -165,7 +165,7 @@ class OnBoardAuditList extends React.Component<FormComponentProps> {
 
   getDataInfoList = () => {
     if (!this.loginData) return;
-    return fetch('/api/audit/list/onboard', {
+    return fetch('/api/audit/list/offboard', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -202,7 +202,7 @@ class OnBoardAuditList extends React.Component<FormComponentProps> {
   };
 
   approvalBtnHandler = (value: any) => {
-    return fetch('/api/audit/approval/onboard', {
+    return fetch('/api/audit/approval/offboard', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -251,7 +251,7 @@ class OnBoardAuditList extends React.Component<FormComponentProps> {
 
   handleReject = (value: any) => {
     console.log(this.state.dataInfo);
-    return fetch('/api/audit/reject/onboard', {
+    return fetch('/api/audit/reject/offboard', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -331,4 +331,4 @@ class OnBoardAuditList extends React.Component<FormComponentProps> {
   }
 }
 
-export default OnBoardAuditList;
+export default OffBoardAuditList;
