@@ -26,13 +26,13 @@ class DetailInfo extends React.Component<DetailInfoProps> {
         {detailInfo ? (
           <Card bordered={false} style={{ marginBottom: 24 }}>
             <div className={styles.avatarHolder}>
-              <div className={styles.name}>权限暂停</div>
+              <div className={styles.name}>证书详情</div>
             </div>
 
             <Descriptions column={2}>
+              <Descriptions.Item label="证书编号">{detailInfo.serial}</Descriptions.Item>
               <Descriptions.Item label="授权主课程">{detailInfo.course_authority.course.title}</Descriptions.Item>
-              <Descriptions.Item label="创建时间">{detailInfo.created_at}</Descriptions.Item>
-              <Descriptions.Item label="课程内容">{detailInfo.course_authority.course.content}</Descriptions.Item>
+              <Descriptions.Item label="证书有效期">{detailInfo.expiry_date}</Descriptions.Item>
             </Descriptions>
             <Divider dashed />
             <div>
@@ -46,38 +46,11 @@ class DetailInfo extends React.Component<DetailInfoProps> {
                 <Descriptions.Item label="姓名">
                   {creatPerson ? creatPerson.name : ''}
                 </Descriptions.Item>
-                <Descriptions.Item label="联系方式">
-                  {creatPerson ? creatPerson.mobile : ''}
-                </Descriptions.Item>
-                <Descriptions.Item label="邮箱">
-                  {creatPerson ? creatPerson.email : ''}
+                <Descriptions.Item label="员工工号">
+                  {creatPerson ? creatPerson.employee_id : ''}
                 </Descriptions.Item>
               </Descriptions>
-              <Divider dashed />
-
-              <Divider dashed />
-              <Descriptions
-                title="站点信息"
-                bordered
-                column={2}
-                layout="vertical"
-                style={{ marginBottom: 32 }}
-              >
-                <Descriptions.Item label="站点名称">
-                  {creatPerson.site ? creatPerson.site.name : ''}
-                </Descriptions.Item>
-                <Descriptions.Item label="站点渠道">
-                  {creatPerson.site ? creatPerson.site.channel : ''}
-                </Descriptions.Item>
-                <Descriptions.Item label="站点省份">
-                  {creatPerson.site
-                    ? creatPerson.site.province + creatPerson.site.city + creatPerson.site.district
-                    : ''}
-                </Descriptions.Item>
-                <Descriptions.Item label="详细地址">
-                  {creatPerson.site ? creatPerson.site.address : ''}
-                </Descriptions.Item>
-              </Descriptions>
+              <Divider dashed />      
             </div>
           </Card>
         ) : (

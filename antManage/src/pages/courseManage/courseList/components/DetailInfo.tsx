@@ -36,6 +36,7 @@ class DetailInfo extends React.Component<DetailInfoProps> {
               </Descriptions.Item>
               <Descriptions.Item label="课程状态">{detailInfo.status.name}</Descriptions.Item>
               <Descriptions.Item label="课程内容">{detailInfo.content}</Descriptions.Item>
+              <Descriptions.Item label="课程产品">{detailInfo.products?.map((data: any) => {return data.name + ';'})}</Descriptions.Item>
             </Descriptions>
             <Divider dashed />
             <div>

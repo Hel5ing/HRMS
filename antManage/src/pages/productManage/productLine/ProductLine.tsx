@@ -70,6 +70,15 @@ class ProductLine extends React.Component {
       dataIndex: 'name',
       key: 'name',
     },
+    {
+      title: '操作',
+      key: 'action',
+      render: (text: any, record: any) => (
+        <Button type="primary" onClick={() => this.editBtnHandler(record)}>
+          修改
+        </Button>
+      ),
+    },
   ];
 
   state: StateData = {
@@ -141,7 +150,7 @@ class ProductLine extends React.Component {
     console.log('handleAdd values: ', values);
 
     if (this.state.dataInfo) {
-      // this.editData(values);
+      this.editData(values);
     } else {
       this.createData(values);
     }
@@ -183,7 +192,7 @@ class ProductLine extends React.Component {
       body: JSON.stringify({
         admin_id: this.loginData.loginInfo.id,
         group_id: this.state.dataInfo.id,
-        channel: values.channel,
+        product_line_id: this.state.dataInfo.id,
         name: values.name,
       }),
     })

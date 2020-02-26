@@ -28,7 +28,10 @@ interface StateData {
   itemList1?: any[];
   itemList2?: any[];
   itemList3?: any[];
+  searchList?: any[];
 }
+
+
 
 class SelectPersonView extends Component<GeographicViewProps> {
   state: StateData = {};
@@ -38,11 +41,14 @@ class SelectPersonView extends Component<GeographicViewProps> {
   );
   private token: string = '';
 
+
   componentDidMount() {
     this.token =
       'Basic ' + btoa(this.loginData.loginInfo.person.mobile + ':' + this.loginData.passWord);
     this.getItemList1();
   }
+
+
 
   getItemList1 = () => {
     if (!this.loginData) return;
@@ -180,6 +186,42 @@ class SelectPersonView extends Component<GeographicViewProps> {
     }
   };
 
+  searchPerson = (value: string) => {
+    if (!value) {
+      this.setState({
+        searchList: [],
+      });
+      return;
+    }
+
+    if (!this.loginData) return;
+    let { loginInfo } = this.loginData;
+    return fetch('/api/person/list/querybygroup', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        group_id: loginInfo.group_id,
+        condition_id: 3,
+        condition_value: value,
+        limit: 9999,
+        offset: 0,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) {
+          this.setState({
+            searchList: json.response.list,
+          });
+        } else {
+        }
+      });
+  };
+
   render() {
     const { selectValue } = this.props;
     return (
@@ -215,10 +257,14 @@ class SelectPersonView extends Component<GeographicViewProps> {
           labelInValue
           showSearch
           onSelect={this.selectItem3}
+          onSearch={this.searchPerson}
+          filterOption={false}
         >
-          {this.state.itemList3?.map(data => {
-            return <Option key={data.key}>{data.value}</Option>;
-          })}
+          {this.state.searchList && this.state.searchList.length > 0 ? this.state.searchList?.map(data => 
+            <Option key={data.id} value={data.id}>{data.name}</Option>
+          ) : this.state.itemList3?.map(data => 
+            <Option key={data.key}>{data.value}</Option>
+          )}
         </Select>
       </div>
     );

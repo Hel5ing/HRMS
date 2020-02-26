@@ -40,7 +40,7 @@ class CourseExamList extends React.Component<FormComponentProps> {
             title: '主课程名称',
             dataIndex: 'course',
             key: 'course',
-            render: (data: any) => <div>{data.title}</div>
+            render: (data: any) => <div>{data ? data.title : ''}</div>
         },
         {
             title: '考试成绩',

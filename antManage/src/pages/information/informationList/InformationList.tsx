@@ -13,6 +13,7 @@ import {
   TreeSelect,
   Select,
   Card,
+  DatePicker
 } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageLoading from '@/components/PageLoading';
@@ -20,6 +21,7 @@ import { LoginInfo } from '@/models/login';
 import { FormComponentProps } from 'antd/lib/form';
 import styles from '../style.less';
 import DetailInfo from './components/DetailInfo';
+import moment from 'moment';
 
 interface StateData {
   formVisible: boolean;
@@ -30,6 +32,7 @@ interface StateData {
   categoryList?: any[];
   infoVisible: boolean;
   detailInfo?: any;
+  roleList: any[];
 }
 
 interface CreateFormProps extends FormComponentProps {
@@ -38,6 +41,7 @@ interface CreateFormProps extends FormComponentProps {
   onCancel: () => void;
   dataInfo?: any;
   categoryList?: any[];
+  roleList: any[];
 }
 
 const FormItem = Form.Item;
@@ -48,7 +52,7 @@ const { TextArea } = Input;
 const CreateForm = Form.create<CreateFormProps>()(
   class extends React.Component {
     render() {
-      const { visible, handleAdd, dataInfo, categoryList, onCancel, form } = this
+      const { visible, handleAdd, dataInfo, categoryList, roleList, onCancel, form } = this
         .props as CreateFormProps;
       const { getFieldDecorator } = form;
 
@@ -60,6 +64,9 @@ const CreateForm = Form.create<CreateFormProps>()(
         });
       };
 
+      const priorityList = [{id: 1, name: '低'}, {id : 2, name: '中'}, {id: 3, name: '高'}];
+
+      console.log(dataInfo);
       return (
         <Modal
           visible={visible}
@@ -83,10 +90,10 @@ const CreateForm = Form.create<CreateFormProps>()(
               })(<TextArea rows={3} />)}
             </Form.Item>
 
-            {dataInfo ? null : (
-              <Form.Item label="信息类别">
+
+            <Form.Item label="信息类别">
                 {getFieldDecorator('category', {
-                  initialValue: dataInfo ? dataInfo.category : '',
+                  initialValue: dataInfo ? dataInfo.category.id : '',
                   rules: [{ required: true, message: '请选择信息类别！' }],
                 })(
                   <TreeSelect
@@ -96,8 +103,49 @@ const CreateForm = Form.create<CreateFormProps>()(
                     placeholder="Please select"
                   />,
                 )}
-              </Form.Item>
-            )}
+            </Form.Item>
+
+            <Form.Item label="覆盖角色">
+                {getFieldDecorator('roles', {
+                  initialValue: dataInfo && dataInfo.roles ? dataInfo.roles.split(',') : [],
+                  rules: [{ required: true, message: '请选择信覆盖角色！' }],
+                })(
+                  <Select
+                    style={{ marginTop: 10, width: 300 }}
+                    className={styles.item}
+                   // value={dataInfo?.roles}
+                    mode="multiple"
+                  >
+                    {roleList?.map(data => {
+                      return <Option key={data.id}>{data.name}</Option>;
+                    })}
+                  </Select>,
+                )}
+            </Form.Item>
+            <Form.Item label="生效日期">
+                {getFieldDecorator('efected_at', {
+                  initialValue: dataInfo && dataInfo.efected_at ? moment(dataInfo.efected_at) : '',
+                  rules: [{ required: true, message: '请选择生效时间！' }],
+                })(
+                  <DatePicker />
+                )}
+            </Form.Item>
+            <Form.Item label="紧急级别">
+                {getFieldDecorator('priority', {
+                  initialValue: dataInfo  ? dataInfo.priority : '',
+                  rules: [{ required: true, message: '请选择紧急级别！' }],
+                })(
+                  <Select
+                    style={{ marginTop: 10, width: 300 }}
+                    className={styles.item}
+                  >
+                    {priorityList?.map(data => {
+                      return <Option key={data.id} value={data.id}>{data.name}</Option>;
+                    })}
+                  </Select>,
+                )}
+            </Form.Item>
+  
           </Form>
         </Modal>
       );
@@ -184,6 +232,7 @@ class InformationList extends React.Component<FormComponentProps> {
     pagination: { current: 1, total: 1 },
     dataList: [],
     infoVisible: false,
+    roleList: [],
   };
 
   private loginData: { passWord: string; loginInfo: LoginInfo } = JSON.parse(
@@ -196,6 +245,26 @@ class InformationList extends React.Component<FormComponentProps> {
       'Basic ' + btoa(this.loginData.loginInfo.person.mobile + ':' + this.loginData.passWord);
     this.getDataInfoList();
     this.getDataTypeList();
+    this.getRoleList();
+  }
+
+  getRoleList() {
+    if (!this.loginData) return;
+
+    return fetch('/api/enum/role/list', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({
+          roleList: json.response,
+        });
+      });
   }
 
   getDataInfoList = () => {
@@ -299,6 +368,7 @@ class InformationList extends React.Component<FormComponentProps> {
         }
       });
   };
+
 
   hideDetailInfo = () => {
     this.setState({
@@ -404,6 +474,9 @@ class InformationList extends React.Component<FormComponentProps> {
         title: values.title,
         content: values.content,
         category: values.category,
+        roles: values.roles,
+        efected_at: values.efected_at,
+        priority:values.priority
       }),
     })
       .then(response => response.json())
@@ -428,6 +501,10 @@ class InformationList extends React.Component<FormComponentProps> {
         information_id: this.state.dataInfo.id,
         title: values.title,
         content: values.content,
+        category: values.category,
+        roles: values.roles,
+        efected_at: values.efected_at,
+        priority:values.priority
       }),
     })
       .then(response => response.json())
@@ -562,6 +639,7 @@ class InformationList extends React.Component<FormComponentProps> {
             handleAdd={this.handleAdd}
             dataInfo={this.state.dataInfo}
             categoryList={this.state.categoryList}
+            roleList={this.state.roleList}
           />
 
           <DetailInfo

@@ -12,6 +12,8 @@ import {
   Row,
   Select,
   Card,
+  Upload,
+  Icon
 } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageLoading from '@/components/PageLoading';
@@ -117,11 +119,9 @@ const CreateForm = Form.create<CreateFormProps>()(
                 rules: [{ required: true, message: '请输入备注内容！' }],
               })(<Input />)}
             </Form.Item>
-
-            {dataInfo ? null : (
               <Form.Item label="奖惩类型">
                 {getFieldDecorator('category', {
-                  initialValue: dataInfo ? dataInfo.category : '',
+                  initialValue: dataInfo && dataInfo.category ? dataInfo.category.id : '',
                   rules: [{ required: true, message: '请选择奖惩类型！' }],
                 })(
                   <TreeSelect
@@ -132,7 +132,6 @@ const CreateForm = Form.create<CreateFormProps>()(
                   />,
                 )}
               </Form.Item>
-            )}
           </Form>
         </Modal>
       );
@@ -433,6 +432,7 @@ class RewardList extends React.Component<FormComponentProps> {
         rap_id: this.state.dataInfo.id,
         target_id: values.target_id,
         remark: values.remark,
+        category: values.category,
       }),
     })
       .then(response => response.json())
@@ -610,6 +610,31 @@ class RewardList extends React.Component<FormComponentProps> {
       return <PageLoading />;
     }
 
+    const getDataList = () => {
+      this.getDataInfoList();
+    }
+
+    const props = {
+      accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      name: 'excel',
+      action: '/api/rap/import',
+      headers: {
+          Authorization: this.token,
+      },
+      data: { type: 1 },
+      onChange(info: any) {
+          if (info.file.status !== 'uploading') {
+              console.log(info.file, info.fileList);
+          }
+          if (info.file.status === 'done') {
+              message.success(`${info.file.name} 上传成功`);
+              getDataList();
+          } else if (info.file.status === 'error') {
+              message.error(`${info.file.name} 上传失败`);
+          }
+      },
+    };
+
     return (
       <PageHeaderWrapper>
         <Card bordered={false}>
@@ -619,14 +644,19 @@ class RewardList extends React.Component<FormComponentProps> {
               <Button icon="plus" type="primary" onClick={() => this.handleFormVisible(true)}>
                 创建
               </Button>
+              
               <Button
                 type="primary"
                 icon="download"
                 onClick={this.downloadFileToExcel}
-                style={{ marginBottom: 10, marginTop: 10, marginLeft: 10 }}
               >
-                下载
+                导出
               </Button>
+              <Upload {...props}>
+                  <Button>
+                      <Icon type="upload" /> 导入
+                  </Button>
+              </Upload>
             </div>
             <Table
               columns={this.columns}

@@ -34,6 +34,9 @@ class DetailInfo extends React.Component<DetailInfoProps> {
               <Descriptions.Item label="信息类别名字">{detailInfo.category.name}</Descriptions.Item>
               <Descriptions.Item label="信息状态">{detailInfo.status.name}</Descriptions.Item>
               <Descriptions.Item label="信息内容">{detailInfo.content}</Descriptions.Item>
+              <Descriptions.Item label="覆盖角色">{detailInfo.roles}</Descriptions.Item>
+              <Descriptions.Item label="生效日期">{detailInfo.efected_at}</Descriptions.Item>
+              <Descriptions.Item label="紧急级别">{detailInfo.priority ? (detailInfo.priority == 1 ? '低' : (detailInfo.priority == 2 ? '中' : '高')) : ''}</Descriptions.Item>
             </Descriptions>
             <Divider dashed />
             <div>

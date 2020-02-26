@@ -150,7 +150,7 @@ class UserInfoManage extends React.Component<FormComponentProps> {
         let str: string = '';
         if (courses && courses.length > 0) {
           courses.forEach((data: CourseInfo) => {
-            str += data.course.title + ' ';
+            str += (data.course ? data.course.title: '') + ' ';
           });
         }
 

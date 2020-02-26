@@ -184,9 +184,10 @@ class CourseList extends React.Component<FormComponentProps> {
       key: 'created_at',
     },
     {
-      title: '课程产品组',
+      title: '课程产品',
       dataIndex: 'products',
       key: 'products',
+      render: (data: any[]) => <div>{data.map(data => {return data.name + ';'})}</div>,
     },
 
     {

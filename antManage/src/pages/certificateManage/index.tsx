@@ -60,7 +60,7 @@ class CertificateList extends React.Component<FormComponentProps> {
       title: '授权主课程',
       dataIndex: 'course_authority',
       key: 'course',
-      render: (data: any) => <div>{data.course.title}</div>,
+      render: (data: any) => <div>{data.course ? data.course.title : ''}</div>,
     },
     {
       title: '证书状态',
