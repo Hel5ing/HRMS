@@ -1,5 +1,18 @@
 import React from 'react';
-import { Table, Button, Card, Form, Input, Modal, message, Select, Row, Col, FormItem } from 'antd';
+import {
+  Table,
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  message,
+  Select,
+  Row,
+  Col,
+  FormItem,
+  Checkbox,
+} from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageLoading from '@/components/PageLoading';
 import { LoginInfo } from '@/models/login';
@@ -29,16 +42,32 @@ interface CreateFormProps extends FormComponentProps {
   dataInfo?: any;
   rsmList?: any[];
   selectedAuthority: string;
+  authorityList?: any[];
+}
+
+interface GroupAuthority {
+  id: number;
+  group_id: number;
+  authority_id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  enum: { id: number; name: string }[];
 }
 
 const CreateForm = Form.create<CreateFormProps>()(
   // eslint-disable-next-line
   class extends React.Component {
     render() {
-      const { visible, handleAdd, dataInfo, rsmList, onCancel, form } = this
+      const { visible, handleAdd, dataInfo, rsmList, onCancel, form, authorityList } = this
         .props as CreateFormProps;
       const { getFieldDecorator } = form;
-
+      let authorityValue: number[] = [];
+      if (dataInfo) {
+        dataInfo.authority.forEach((data: GroupAuthority) => {
+          authorityValue.push(data.enum[0].id);
+        });
+      }
       const onCreate = () => {
         form.validateFields((err: any, fieldsValue: any) => {
           if (err) return;
@@ -47,6 +76,7 @@ const CreateForm = Form.create<CreateFormProps>()(
         });
       };
 
+      console.log('authorityList------' + authorityList);
       return (
         <Modal
           visible={visible}
@@ -91,6 +121,26 @@ const CreateForm = Form.create<CreateFormProps>()(
                 </Select>,
               )}
             </Form.Item>
+
+            {dataInfo ? (
+              <Form layout="vertical">
+                <Form.Item label="授权">
+                  {getFieldDecorator('authority', {
+                    initialValue: authorityValue,
+                  })(
+                    <Checkbox.Group style={{ width: '100%' }}>
+                      {authorityList?.map(data => {
+                        return (
+                          <Checkbox key={data.id} value={data.id}>
+                            {data.name}
+                          </Checkbox>
+                        );
+                      })}
+                    </Checkbox.Group>,
+                  )}
+                </Form.Item>
+              </Form>
+            ) : null}
           </Form>
         </Modal>
       );
@@ -187,7 +237,7 @@ class GroupList extends React.Component {
       key: 'action',
       render: (text: any, record: any) => (
         <Button type="primary" onClick={() => this.editBtnHandler(record)}>
-          修改集团信息
+          修改
         </Button>
       ),
     },
@@ -201,6 +251,8 @@ class GroupList extends React.Component {
     pagination: { current: 1, total: 1 },
     dataList: [],
     addAdminLoading: false,
+    authorityList: [],
+    selectedAuthority: '',
   };
 
   private loginData: { passWord: string; loginInfo: LoginInfo } = JSON.parse(
@@ -371,7 +423,7 @@ class GroupList extends React.Component {
     this.getDataInfoList();
   };
 
-  handleAuthorityChange = value => {
+  handleAuthorityChange = (value: any) => {
     console.log(value);
     this.setState({
       selectedAuthority: value,
@@ -420,12 +472,79 @@ class GroupList extends React.Component {
     console.log('Received values of form: ', values);
 
     if (this.state.dataInfo) {
+      let authorityList: number[] = [];
+      let valueList: number[] = values.authority;
+      if (this.state.dataInfo) {
+        const { dataInfo } = this.state;
+        dataInfo.authority.forEach((data: GroupAuthority) => {
+          authorityList.push(data.enum[0].id);
+        });
+      }
+
+      valueList.forEach((id: number) => {
+        let index: number = authorityList.indexOf(id);
+        if (index >= 0) {
+          authorityList.splice(index, 1);
+        } else {
+          this.addAuthority(id);
+        }
+      });
+
+      authorityList.forEach((id: number) => {
+        this.deleteAuthority(id);
+      });
       this.editData(values);
     } else {
       this.createData(values);
     }
 
     this.setState({ formVisible: false });
+  };
+
+  addAuthority = (authority_id: number) => {
+    if (!this.loginData) return;
+    let { loginInfo } = this.loginData;
+
+    return fetch('/api/group/authority/append', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        admin_id: loginInfo.id,
+        authority_id: authority_id,
+        group_id: this.state.dataInfo ? this.state.dataInfo.id : '',
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) this.getDataInfoList();
+      });
+  };
+
+  deleteAuthority = (authority_id: number) => {
+    if (!this.loginData) return;
+    let { loginInfo } = this.loginData;
+
+    return fetch('/api/group/authority/remove', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        admin_id: loginInfo.id,
+        authority_id: authority_id,
+        group_id: this.state.dataInfo ? this.state.dataInfo.id : '',
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) this.getDataInfoList();
+      });
   };
 
   createData = (values: any) => {
@@ -604,6 +723,8 @@ class GroupList extends React.Component {
             handleAdd={this.handleAdd}
             dataInfo={this.state.dataInfo}
             rsmList={this.state.rsmList}
+            authorityList={this.state.authorityList}
+            selectedAuthority={this.state.selectedAuthority}
           />
 
           <GroupDetailInfo

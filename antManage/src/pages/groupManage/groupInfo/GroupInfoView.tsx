@@ -388,12 +388,14 @@ class GroupInfoView extends React.Component<GroupInfoProps> {
           <br />
           <br />
           <div>
+            {/**
             <Button type="primary" onClick={this.showModal}>
               修改集团信息
             </Button>
             <Button style={{ marginLeft: 15 }} type="primary" onClick={this.showAuthority}>
               修改授权
             </Button>
+            **/}
           </div>
 
           <CollectionCreateForm

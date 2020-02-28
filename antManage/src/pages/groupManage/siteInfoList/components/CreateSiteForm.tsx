@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Select, Row, Col } from 'antd';
+import { Form, Input, Modal, Select, Row, Col, Checkbox } from 'antd';
 import { FormComponentProps } from 'antd/es/form';
 import React from 'react';
 import { SiteInfo } from '../SiteInfoList';
@@ -24,6 +24,17 @@ interface CreateFormProps extends FormComponentProps {
   statusList?: any[];
   siteList?: any[];
   editData?: SiteInfo;
+  authorityList?: any[];
+}
+
+interface SiteAuthority {
+  id: number;
+  site_id: number;
+  authority_id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  enum: { id: number; name: string };
 }
 
 const CreateSiteForm: React.FC<CreateFormProps> = props => {
@@ -40,7 +51,16 @@ const CreateSiteForm: React.FC<CreateFormProps> = props => {
     onCancel,
     editData,
     siteList,
+    authorityList,
   } = props;
+
+  let authorityValue: number[] = [];
+  if (editData) {
+    console.log(editData.authority);
+    editData.authority.forEach((data: SiteAuthority) => {
+      authorityValue.push(data.enum.id);
+    });
+  }
 
   const onCreate = () => {
     form.validateFields((err, fieldsValue) => {
@@ -255,6 +275,25 @@ const CreateSiteForm: React.FC<CreateFormProps> = props => {
             initialValue: editData ? editData.remark : '',
           })(<TextArea rows={3} />)}
         </Form.Item>
+        {editData ? (
+          <Form layout="vertical">
+            <Form.Item label="授权">
+              {getFieldDecorator('authority', {
+                initialValue: authorityValue,
+              })(
+                <Checkbox.Group style={{ width: '100%' }}>
+                  {authorityList?.map(data => {
+                    return (
+                      <Checkbox key={data.id} value={data.id}>
+                        {data.name}
+                      </Checkbox>
+                    );
+                  })}
+                </Checkbox.Group>,
+              )}
+            </Form.Item>
+          </Form>
+        ) : null}
       </Form>
     </Modal>
   );

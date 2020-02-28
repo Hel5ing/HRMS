@@ -21,7 +21,7 @@ export interface PersonInfo {
   education: any;
   major: any;
   site_id: number;
-  position: number;
+  positions?: any[];
   role: number;
   level: number;
   avatar: any;
@@ -54,6 +54,7 @@ interface PersonState {
   statusList?: any[];
   siteList?: any[];
   editData?: PersonInfo;
+  positionIDs?: any[];
   certificateFormVisible: boolean;
   certificateLoading: boolean;
   certificateInfo?: any;
@@ -136,12 +137,18 @@ class PersonInfoList extends React.Component<FormComponentProps> {
       ),
     },
     {
-      title: '角色',
-      dataIndex: 'role',
-      key: 'role',
-      render: (type: number) => (
-        <div>{this.state.roleList ? this.state.roleList[type].name : '无'}</div>
-      ),
+      title: '岗位',
+      dataIndex: 'positions',
+      key: 'positions',
+      render: (positions?: any[]) => {
+        let str: string = '';
+        positions?.forEach((data: any) => {
+          if (data.position) {
+            str += data.position.name + '/';
+          }
+        });
+        return <div>{str}</div>;
+      },
     },
     {
       title: '手机号',
@@ -256,9 +263,20 @@ class PersonInfoList extends React.Component<FormComponentProps> {
 
   editHandler = (record: PersonInfo) => {
     console.log('----clickEdit: ', record);
+    //生成职位id数组
+    let positionIDs: any[] = [];
+    record.positions?.forEach(data => {
+      if (data.position) {
+        positionIDs.push(data.position.id);
+      }
+    });
+
+    console.log(positionIDs);
+
     this.setState({
       personFormVisible: true,
       editData: record,
+      positionIDs: positionIDs,
     });
   };
 
@@ -452,6 +470,7 @@ class PersonInfoList extends React.Component<FormComponentProps> {
     this.setState({
       personFormVisible: !!flag,
       editData: null,
+      positionIDs: [],
     });
   };
 
@@ -651,6 +670,7 @@ class PersonInfoList extends React.Component<FormComponentProps> {
             statusList={this.state.statusList}
             editData={this.state.editData}
             siteList={this.state.siteList}
+            positionIDs={this.state.positionIDs}
           />
 
           <PersonInfoView

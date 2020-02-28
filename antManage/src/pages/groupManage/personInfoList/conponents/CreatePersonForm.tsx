@@ -40,6 +40,7 @@ interface CreateFormProps extends FormComponentProps {
   statusList?: any[];
   editData?: PersonInfo;
   siteList?: any[];
+  positionIDs?: any[];
 }
 
 const CreatePersonForm: React.FC<CreateFormProps> = props => {
@@ -54,6 +55,7 @@ const CreatePersonForm: React.FC<CreateFormProps> = props => {
     onCancel,
     editData,
     siteList,
+    positionIDs,
   } = props;
 
   const { getFieldDecorator } = form;
@@ -154,8 +156,8 @@ const CreatePersonForm: React.FC<CreateFormProps> = props => {
             </FormItem>
 
             <FormItem style={{ marginBottom: 0 }} label="职位">
-              {getFieldDecorator('position', {
-                initialValue: editData ? editData.position : '',
+              {getFieldDecorator('positions', {
+                initialValue: positionIDs ? positionIDs : [],
                 rules: [
                   {
                     required: true,
@@ -163,7 +165,7 @@ const CreatePersonForm: React.FC<CreateFormProps> = props => {
                   },
                 ],
               })(
-                <Select style={{ width: 150 }}>
+                <Select mode="multiple" style={{ width: 150 }}>
                   {positionList
                     ? positionList.map((data: { id: number; name: string; level: number }) => {
                         return (

@@ -29,6 +29,14 @@ export interface SiteInfo {
   admin?: AdminInfo[];
   star: string;
   code: string;
+  authority: any[];
+  gcss_id: string;
+  ess_ii_no: string;
+  cpc_id: string;
+  cip_id: string;
+  einstein_id: string;
+  queue: string;
+  remark: string;
 }
 
 interface AuthorityInfo {
@@ -64,6 +72,17 @@ interface SiteState {
   statusList?: any[];
   siteList?: any[];
   editData?: SiteInfo;
+  authorityList?: any[];
+}
+
+interface SiteAuthority {
+  id: number;
+  site_id: number;
+  authority_id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  enum: { id: number; name: string };
 }
 
 const FormItem = Form.Item;
@@ -187,6 +206,7 @@ class SiteInfoList extends React.Component<FormComponentProps> {
     this.getSiteInfoList();
     this.getSiteTypeList();
     this.getStatusList();
+    this.getAuthorityList();
   }
 
   editBtnHandler = (value: SiteInfo) => {
@@ -214,6 +234,25 @@ class SiteInfoList extends React.Component<FormComponentProps> {
       },
     );
   };
+
+  getAuthorityList() {
+    if (!this.loginData) return;
+
+    return fetch('/api/enum/authority/list', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({
+          authorityList: json.response,
+        });
+      });
+  }
 
   getSiteInfoList = () => {
     if (!this.loginData) return;
@@ -435,7 +474,24 @@ class SiteInfoList extends React.Component<FormComponentProps> {
     params.city = params.geographic.city;
     params.district = params.geographic.district;
     params.group_id = loginInfo.group_id;
+    let mauthorityList: number[] = []; //已有授权列表
+    let valueList: number[] = params.authority; //更新授权列表
+    this.state.editData.authority.forEach((data: SiteAuthority) => {
+      mauthorityList.push(data.enum.id);
+    });
 
+    valueList.forEach((id: number) => {
+      let index: number = mauthorityList.indexOf(id);
+      if (index >= 0) {
+        mauthorityList.splice(index, 1);
+      } else {
+        this.addAuthority(id, this.state.editData.id);
+      }
+    });
+
+    mauthorityList.forEach((id: number) => {
+      this.deleteAuthority(id, this.state.editData.id);
+    });
     return fetch('/api/site/update', {
       headers: {
         Accept: 'application/json',
@@ -450,6 +506,52 @@ class SiteInfoList extends React.Component<FormComponentProps> {
         if (json.success) {
           this.getSiteInfoList();
         }
+      });
+  };
+
+  addAuthority = (authority_id: number, site_id: number) => {
+    if (!this.loginData) return;
+    let { loginInfo } = this.loginData;
+
+    return fetch('/api/site/authority/append', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        admin_id: loginInfo.id,
+        authority_id: authority_id,
+        site_id: site_id,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) this.getSiteInfoList();
+      });
+  };
+
+  deleteAuthority = (authority_id: number, site_id: number) => {
+    if (!this.loginData) return;
+    let { loginInfo } = this.loginData;
+
+    return fetch('/api/site/authority/remove', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        admin_id: loginInfo.id,
+        authority_id: authority_id,
+        site_id: site_id,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) this.getSiteInfoList();
       });
   };
 
@@ -563,6 +665,7 @@ class SiteInfoList extends React.Component<FormComponentProps> {
             statusList={this.state.statusList}
             editData={this.state.editData}
             siteList={this.state.siteList}
+            authorityList={this.state.authorityList}
           />
 
           <SiteInfoView
