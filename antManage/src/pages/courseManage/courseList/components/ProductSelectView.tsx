@@ -17,8 +17,8 @@ const nullSelectItem: SelectItem = {
 
 interface GeographicViewProps {
   // productLineList?: any[];
-  // productTypeList?: any[];
-  // productList?: any[];
+  productTypeList?: any[];
+  productList?: any[];
   selectValue: {
     productLine: SelectItem;
     productType: SelectItem;
@@ -216,7 +216,9 @@ class ProductSelectView extends Component<GeographicViewProps> {
           showSearch
           onSelect={this.selectProductTypeItem}
         >
-          {this.state.productTypeList?.map(data => {
+          {this.props.productTypeList ? this.props.productTypeList?.map(data => {
+            return <Option key={data.key}>{data.value}</Option>;
+          }) : this.state.productTypeList?.map(data => {
             return <Option key={data.key}>{data.value}</Option>;
           })}
         </Select>
@@ -227,8 +229,10 @@ class ProductSelectView extends Component<GeographicViewProps> {
           mode="multiple"
           onChange={this.selectProductItem}
         >
-          {this.state.productList?.map(data => {
-            return <Option key={data.key}>{data.value}</Option>;
+          {this.props.productList ? this.props.productList?.map(data => {
+            return <Option key={data.key} value={data.key}>{data.value}</Option>;
+          }) :this.state.productList?.map(data => {
+            return <Option key={data.key} value={data.key}>{data.value}</Option>;
           })}
         </Select>
         ,

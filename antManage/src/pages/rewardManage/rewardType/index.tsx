@@ -270,7 +270,7 @@ class RewardType extends React.Component<FormComponentProps> {
 
   editData = (values: any) => {
     if (!this.loginData) return;
-    return fetch('/api/course/category/update', {
+    return fetch('/api/rap/category/update', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',

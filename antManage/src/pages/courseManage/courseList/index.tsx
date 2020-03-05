@@ -22,6 +22,8 @@ interface StateData {
     productType: any;
     product: string[];
   };
+  productTypeList: any[];
+  productList: any[];
 }
 
 interface CreateFormProps extends FormComponentProps {
@@ -35,6 +37,8 @@ interface CreateFormProps extends FormComponentProps {
     productType: any;
     product: string[];
   };
+  productTypeList: any[];
+  productList: any[];
   onChange: (value: { productLine: any; productType: any; product: string[] }) => void;
 }
 
@@ -50,6 +54,8 @@ const CreateForm = Form.create<CreateFormProps>()(
         categoryList,
         onCancel,
         form,
+        productTypeList,
+        productList,
       } = this.props as CreateFormProps;
       const { getFieldDecorator } = form;
 
@@ -70,12 +76,16 @@ const CreateForm = Form.create<CreateFormProps>()(
         },
         callback: (message?: string) => void,
       ) => {
-        if (dataInfo) return;
+        // if (dataInfo) 
+        // {
+        //   console.log('edit ignore');
+        //   callback();
+        // }
         const { product } = value;
-        if (!product || product.length <= 0) {
+        if (!product || product.length <= 0) 
+        {
           callback('请选择课程产品！!');
         }
-
         callback();
       };
 
@@ -106,12 +116,10 @@ const CreateForm = Form.create<CreateFormProps>()(
               {getFieldDecorator('products', {
                 initialValue: selectValue,
                 rules: [
-                  { required: dataInfo ? false : true, message: '请选择课程产品！' },
-                  {
-                    validator: validatorForm,
-                  },
+                  { required: true, message: '请选择课程产品！' },
+                  {validator: validatorForm,},
                 ],
-              })(<ProductSelectView selectValue={selectValue} onChange={onChange} />)}
+              })(<ProductSelectView productTypeList={dataInfo ? productTypeList : []} productList={dataInfo ? productList : []} selectValue={selectValue} onChange={onChange} />)}
             </Form.Item>
 
             <Form.Item label="课程类别">
@@ -303,6 +311,72 @@ class CourseList extends React.Component<FormComponentProps> {
       });
   };
 
+  getProductTypeList = (id: string) => {
+    if (!this.loginData) return;
+    return fetch('/api/product/category/list/byline', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        product_line_id: id,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) {
+          let list: any[] = [];
+          (json.response as []).forEach((data: any) => {
+            let item: any = {};
+            item.value = data.product_category.name;
+            item.key = data.product_category.id;
+
+            list.push(item);
+          });
+          this.setState({
+            productTypeList: list,
+            productList: [],
+          });
+        }
+      });
+  };
+
+  getProductList = (pl: string, id: string, selectedValue: any) => {
+    if (!this.loginData) return;
+    return fetch('/api/product/list/bycategory', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: this.token,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        product_line_id: pl,
+        product_category_id: id,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.success) {
+          let list: any[] = [];
+          (json.response as []).forEach((data: any) => {
+            let item: any = {};
+            item.value = data.name;
+            item.key = data.id;
+
+            list.push(item);
+          });
+          this.setState({
+            productList: list,
+            formVisible: true,
+            selectValue: selectedValue
+          });
+        }
+      });
+  };
+
   showDetailInfo = (dataId: number) => {
     if (!this.loginData) return;
 
@@ -340,15 +414,54 @@ class CourseList extends React.Component<FormComponentProps> {
   };
 
   editBtnHandler = (value: any) => {
-    this.setState({
-      formVisible: true,
-      dataInfo: value,
-      selectValue: {
-        productLine: { label: '', key: '' },
-        productType: { label: '', key: '' },
-        product: [],
-      },
-    });
+    console.log(value);
+    if(value && value.products.length > 0)
+    {
+      var productList = value.products;
+      let products = [];
+      for(var n in productList)
+      {
+        products.push(productList[n].id);
+      }
+      this.getProductTypeList(productList[0].product_line.id);
+      this.getProductList(productList[0].product_line.id, productList[0].product_category.id, {
+          productLine:{
+            label: productList[0].product_line.name, 
+            key: productList[0].product_line.id
+          }, 
+          productType:{
+            label: productList[0].product_category.name, 
+            key: productList[0].product_category.id
+          },
+          product: products
+        });
+      this.setState(
+      {
+        dataInfo: value,
+      });
+    }
+    else
+    {
+      this.setState(
+      {
+        formVisible: true,
+        dataInfo: value,
+        selectValue: 
+        {
+          productLine: 
+          {
+            label: '', 
+            key: ''
+          }, 
+          productType:{
+            label: '', 
+            key: ''
+          },
+          product: []
+        }
+      });
+    }
+ 
   };
 
   deleteBtnHandler = (value: any) => {
@@ -466,6 +579,7 @@ class CourseList extends React.Component<FormComponentProps> {
   };
 
   onChange = (value: { productLine: any; productType: any; product: string[] }) => {
+    console.log(this.state.selectValue);
     this.setState({
       selectValue: {
         productLine: value.productLine,
@@ -505,6 +619,8 @@ class CourseList extends React.Component<FormComponentProps> {
             categoryList={this.state.categoryList}
             selectValue={this.state.selectValue}
             onChange={this.onChange}
+            productTypeList={this.state.productTypeList}
+            productList={this.state.productList}
           />
 
           <DetailInfo
