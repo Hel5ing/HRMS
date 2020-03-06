@@ -59,7 +59,7 @@ class DetailInfo extends React.Component<DetailInfoProps> {
             {publishedPerson ? (
               <div>
                 <Descriptions
-                  title="创建人"
+                  title="暂停发起人"
                   bordered
                   column={2}
                   layout="vertical"

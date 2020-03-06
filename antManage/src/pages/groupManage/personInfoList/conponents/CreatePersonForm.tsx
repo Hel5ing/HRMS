@@ -202,7 +202,7 @@ const CreatePersonForm: React.FC<CreateFormProps> = props => {
                 </Select>,
               )}
             </FormItem>
-
+          {/**
             <FormItem style={{ marginBottom: 0 }} label="人员级别">
               {getFieldDecorator('level', { initialValue: editData ? editData.level : '' })(
                 <Select style={{ width: 150 }}>
@@ -242,7 +242,7 @@ const CreatePersonForm: React.FC<CreateFormProps> = props => {
                 </Select>,
               )}
             </FormItem>
-
+**/}
             <FormItem style={{ marginBottom: 0 }} label="毕业院校">
               {getFieldDecorator('college', { initialValue: editData ? editData.college : '' })(
                 <Input />,

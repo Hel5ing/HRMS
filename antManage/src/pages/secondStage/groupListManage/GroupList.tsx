@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Table,
@@ -100,11 +101,12 @@ const CreateForm = Form.create<CreateFormProps>()(
             </Form.Item>
             <Form.Item label="RSM">
               {getFieldDecorator('rsm', {
-                initialValue: dataInfo ? dataInfo.rsm.name : '',
+                initialValue: dataInfo ? dataInfo.rsm.id : '',
                 rules: [
                   {
                     required: true,
                     message: '请选择RSM!',
+                    
                   },
                 ],
               })(

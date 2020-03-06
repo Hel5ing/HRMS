@@ -19,7 +19,11 @@ interface StateData {
     item2: any;
     item3: any;
   };
-
+  selectValueBy: {
+    item1: any;
+    item2: any;
+    item3: any;
+  };
   productLineList: any;
   productCategoryList: any;
   productList: any;
@@ -43,7 +47,22 @@ const validatorForm = (
 
   callback();
 };
+const validatorFormBy = (
+  _: any,
+  value: {
+    item1: any;
+    item2: any;
+    item3: any;
+  },
+  callback: (message?: string) => void,
+) => {
+  const { item3 } = value;
+  if (!item3 || !item3.key) {
+    callback('请选择暂停发起人!');
+  }
 
+  callback();
+};
 interface CreateFormProps extends FormComponentProps {
   visible: boolean;
   handleAdd: (fieldsValue: { desc: string }) => void;
@@ -53,8 +72,13 @@ interface CreateFormProps extends FormComponentProps {
     item2: any;
     item3: any;
   };
+  selectValueBy: {
+    item1: any;
+    item2: any;
+    item3: any;
+  };
   onChange: (value: { item1: any; item2: any; item3: any }) => void;
-
+  onChangeBy: (value: { item1: any; item2: any; item3: any }) => void;
   productLineList: any;
   productCategoryList: any;
   productList: any;
@@ -72,9 +96,11 @@ const CreateForm = Form.create<CreateFormProps>()(
         productCategoryList,
         productList,
         onChange,
+        onChangeBy,
         selectProductLine,
         selectProductCategory,
         selectValue,
+        selectValueBy,
         onCancel,
         form,
       } = this.props as CreateFormProps;
@@ -91,14 +117,14 @@ const CreateForm = Form.create<CreateFormProps>()(
       const selectLine = (item: any) => {
         setFieldsValue({
           product_category: { label: '', key: '' },
-          product: { label: '', key: '' },
+          product: [],
         });
         selectProductLine(item);
       };
 
       const selectType = (item: any) => {
         setFieldsValue({
-          product: { label: '', key: '' },
+          product: [],
         });
         selectProductCategory(item);
       };
@@ -132,13 +158,15 @@ const CreateForm = Form.create<CreateFormProps>()(
             </Form.Item>
 
             <Form.Item label="选择产品">
-              {getFieldDecorator(
-                'product',
-                {},
+              {getFieldDecorator('product',
+                {
+                  initialValue: [],
+                  rules: [{ required: true, message: '请选择暂停产品' }],
+                },
               )(
-                <Select labelInValue showSearch>
+                <Select labelInValue showSearch mode="multiple">
                   {productList?.map((data: any) => {
-                    return <Option key={data.key}>{data.value}</Option>;
+                    return <Option key={data.key} value={data.key}>{data.value}</Option>;
                   })}
                 </Select>,
               )}
@@ -153,6 +181,17 @@ const CreateForm = Form.create<CreateFormProps>()(
                   },
                 ],
               })(<SelectPersonView selectValue={selectValue} onChange={onChange} />)}
+            </Form.Item>
+
+            <Form.Item label="选择暂停发起人">
+              {getFieldDecorator('suspend_by', {
+                rules: [
+                  { required: true, message: '选择暂停发起人' },
+                  {
+                    validator: validatorFormBy,
+                  },
+                ],
+              })(<SelectPersonView selectValue={selectValueBy} onChange={onChangeBy} />)}
             </Form.Item>
 
             <Form.Item label="暂停原因">
@@ -216,6 +255,11 @@ class CourseSuspendList extends React.Component<FormComponentProps> {
       key: 'created_at',
     },
     {
+      title: '暂停发起人',
+      dataIndex: 'suspend_by.name',
+      key: 'suspend_by',
+    },
+    {
       title: '操作',
       key: 'action',
       render: (text: any, record: any) => (
@@ -234,6 +278,11 @@ class CourseSuspendList extends React.Component<FormComponentProps> {
     dataList: [],
     infoVisible: false,
     selectValue: {
+      item1: { label: '', key: '' },
+      item2: { label: '', key: '' },
+      item3: { label: '', key: '' },
+    },
+    selectValueBy: {
       item1: { label: '', key: '' },
       item2: { label: '', key: '' },
       item3: { label: '', key: '' },
@@ -457,9 +506,10 @@ class CourseSuspendList extends React.Component<FormComponentProps> {
         admin_id: this.loginData.loginInfo.id,
         person_id: values.person.item3.key,
         reason: values.reason,
-        product_id: values.product.key,
+        product_id: values.product,
         product_category_id: values.product_category.key,
         product_line_id: values.product_line.key,
+        suspend_by: values.suspend_by.item3.key,
       }),
     })
       .then(response => response.json())
@@ -478,6 +528,11 @@ class CourseSuspendList extends React.Component<FormComponentProps> {
         item2: { label: '', key: '' },
         item3: { label: '', key: '' },
       },
+      selectValueBy: {
+        item1: { label: '', key: '' },
+        item2: { label: '', key: '' },
+        item3: { label: '', key: '' },
+      },
     });
   };
 
@@ -490,7 +545,15 @@ class CourseSuspendList extends React.Component<FormComponentProps> {
       },
     });
   };
-
+  onChangeBy = (value: { item1: any; item2: any; item3: string[] }) => {
+    this.setState({
+      selectValueBy: {
+        item1: value.item1,
+        item2: value.item2,
+        item3: value.item3,
+      },
+    });
+  };
   selectProductLine = (item: any) => {
     this.selectProductLineId = item.key;
     this.getProductTypeList(item.key);
@@ -528,7 +591,9 @@ class CourseSuspendList extends React.Component<FormComponentProps> {
             onCancel={this.handleCancel}
             handleAdd={this.handleAdd}
             selectValue={this.state.selectValue}
+            selectValueBy={this.state.selectValueBy}
             onChange={this.onChange}
+            onChangeBy={this.onChangeBy}
             productLineList={this.state.productLineList}
             productCategoryList={this.state.productCategoryList}
             productList={this.state.productList}
